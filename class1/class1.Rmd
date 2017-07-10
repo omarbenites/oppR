@@ -1,0 +1,69 @@
+---
+title: "Class 1"
+output: html_notebook
+---
+
+# Object Oriented Programming with R
+
+Mostly of the time, we usually utilize functions to perform analysis in R. Because R is a functional programming oriented programming language, it use data and the transformed it using functions in the whole process. Hence, if you want to analyze data, you require FP paradigm.
+
+However, exists another computational tasks that requiere another programming approach. For this reason, we introduce the Object Oriented Programming paradigm, which is used to build tools that can enrich our data analysis pipeline.
+
+In summary, we can say:
+
+- With functional programming, think about the functions first.
+- With object-oriented programming (OOP) think about the data structures first.
+- Don’t use OOP for general purpose data analyses.
+- Do use OOP when you have a limited number of complex objects.
+
+## The Nine Systems
+
+- Knowing how to use S3 is a fundamental R skill.
+- R6 and ReferenceClasses are powerful OOP frameworks.
+- S4 is useful for working with Bioconductor.
+- Do exists another systems, but for this course are not requiered.
+
+## What's my type?
+
+You've just seen four functions that help you determine what type of variable you're working with. `class()` and `typeof()` are important and will come in handy often. `mode()` and `storage.mode()` mostly exist for compatibility with the S programming language.
+
+```{r,eval=TRUE, message=FALSE, warning=FALSE}
+# Look at the definition of type_info()
+type_info <- function(x){
+  c(
+    class = class(x), 
+    typeof = typeof(x), 
+    mode = mode(x), 
+    storage.mode = storage.mode(x)
+  )
+}
+
+
+# Create list of example variables
+some_vars <- list(
+  an_integer_vector = rpois(24, lambda = 5),
+  a_numeric_vector = rbeta(24, shape1 = 1, shape2 = 1),
+  an_integer_array = array(rbinom(24, size = 8, prob = 0.5), dim = c(2, 3, 4)),
+  a_numeric_array = array(rweibull(24, shape = 1, scale = 1), dim = c(2, 3, 4)),
+  a_data_frame = data.frame(int = rgeom(24, prob = 0.5), num = runif(24)),
+  a_factor = factor(month.abb),
+  a_formula = y ~ x,
+  a_closure_function = mean,
+  a_builtin_function = length,
+  a_special_function = `if`
+)
+
+# Loop over some_vars calling type_info() on each element to explore them
+lapply(some_vars, type_info)
+```
+
+
+## Class function
+
+If you
+
+- You can override the `class()`
+- This won’t break existing functionality
+
+
+

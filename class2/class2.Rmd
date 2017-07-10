@@ -1,0 +1,178 @@
+---
+title: "Generics and Methods"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Function Overload
+
+As far we know, the summary function have different output depending on what is the type of input. For instance, 
+
+```{r cars}
+#logical values
+p1 <- c(NA, NA, NULL, NA)
+summary(p1)
+
+#numeric values
+p2 <- 1:10
+summary(p2)
+```
+
+Both outputs have different formats (heaeders, values) for each input.
+
+Different kind of behavour according to different type of inputs is called
+
+`Function Overloading`.
+
+The `S3` exists to make this problem much more easier to deal with. This system split the function in two parts
+
+1. Generic function
+2. Method function (for each class)
+
+An example of generic function is `print`. Let's see:
+
+```{r}
+print
+```
+
+This function is really simple, this is typical from `S3`generic, it just use `UseMethod` as string. 
+
+## Condition for S3 Methods
+There two condition to
+
+1. The name of the `method` = `name of the generic`.`name of the class of the variable`. For example in R,
+
+- `print.Date`
+- `print.function`
+- `print.factor`
+- `summary.factor`
+- `unique.array`
+
+In the first case, `print` is the **name of the generic method** , `dot`, **the name of the class** `Date`.
+
+
+2. The arguments of the **method**, must have all the arguments of the **generic**
+
+For example the arguments of `print` is `x` and `...` or elipsis arguemtn. Hence, `print.Date` must have `x` and `...` too. 
+
+```{r, eval=TRUE}
+args(print)
+```
+
+```{r, eval=TRUE}
+args(print.Date)
+```
+
+Furthermore, the elipsis arguments (`...`) allow to pass `arguments` between `methods`.
+
+Sometimes, there are confusion between generic functions and other functions that people usually write. `S3` use `.` to specify `methods`. Therefore, a good practice is `camelCase` or `snake_case` functions names.
+
+One way to check whether functions are `S3` methods is the `pryr` package.
+
+```{r, warning=FALSE, message=FALSE}
+library(pryr)
+is_s3_generic("t")           # generic transpose function
+is_s3_method("t.data.frame") # transpose method for data.frames
+is_s3_method("t.test")       # a function for Student's t-tests
+is_s3_method("is.na.data.frame") #is a method of the is.na generic that acts on data.frame objects.
+```
+
+The `S3` generics contain a call to `UseMethod`, and `S4` methods take the form `generic.class`.
+
+
+## Creating a Generic Function
+
+You can create your own `S3` functions. The first step is to write the generic. This is typically a single line function that calls `UseMethod()`, passing its name as a string.
+
+The first argument to an `S3` generic is usually called x, though this isn't compulsory. It is also good practice to include a `...` ("ellipsis", or "dot-dot-dot") argument, in case arguments need to be passed from one method to another.
+
+Overall, the structure of an `S3` generic looks like this.
+
+
+```{r}
+an_s3_generic <- function(x, maybe = "some", other = "arguments", ...) {
+  UseMethod("an_s3_generic")
+}
+```
+
+An example might be define an `S3` generic function to calculate the number of elements in an object `x`:
+  
+- Assign the function to `get_n_elements`.
+- It should have arguments `x` and `....`
+- The body of the function should call `UseMethod()`.
+
+
+```{r}
+# Create get_n_elements
+get_n_elements<-function(x, ...){
+  UseMethod("get_n_elements")
+}
+```
+
+By itself, the generic function doesn't do anything. For that, you need to create methods, which are just regular functions with two conditions:
+
+1. The name of the method must be of the form generic.class.
+2. The method signature - that is, the arguments that are passed in to the method - must contain the signature of the generic.
+
+The example explain step-by-step how to create a method using the generic `S3` function above:
+
+
+-  View get_n_elements `generic`
+```{r}
+get_n_elements
+```
+
+- Create a data.frame `method` for get_n_elements
+```{r}
+get_n_elements.data.frame<-function(x,...){
+  nrow(x)*ncol(x)
+}
+```
+
+- Call the method on the sleep dataset
+```{r}
+n_elements_sleep <- get_n_elements(sleep) 
+```
+
+- View the result
+```{r}
+n_elements_sleep
+```
+
+## Default Method: Generalization for different type of data
+
+If no suitable method is found for a generic, then an error is thrown. For example, at the moment, get_n_elements() only has a method available for data.frames. If you pass a matrix to get_n_elements() instead, you'll see an error.
+
+```{r}
+get_n_elements(matrix())
+```
+
+Rather than having to write dozens of methods for every kind of input, you can create a `method` that handles all types that don't have a specific method. This is called the **default** method; it always has the name generic.default. For example, `print.default()` will print any type of object that doesn't have its own `print()` method.
+
+Do continue with the example:
+
+
+- View pre-defined objects
+```{r}
+ls.str()
+```
+
+- Create a default method for get_n_elements
+```{r}
+get_n_elements.default<-function(x, ...){
+  length(unlist(x))
+}
+```
+
+- Call the method on the ability.cov dataset
+```{r}
+n_elements_ability.cov <- get_n_elements.default(ability.cov)
+```
+
+
+As we can se the `default` method catches all classes that don't have their own method.
+
+
