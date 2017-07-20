@@ -146,7 +146,7 @@ n_elements_sleep
 
 If no suitable method is found for a generic, then an error is thrown. For example, at the moment, get_n_elements() only has a method available for data.frames. If you pass a matrix to get_n_elements() instead, you'll see an error.
 
-```{r}
+```{r, eval=FALSE }
 get_n_elements(matrix())
 ```
 
@@ -161,6 +161,7 @@ ls.str()
 ```
 
 - Create a default method for get_n_elements
+
 ```{r}
 get_n_elements.default<-function(x, ...){
   length(unlist(x))
@@ -168,11 +169,32 @@ get_n_elements.default<-function(x, ...){
 ```
 
 - Call the method on the ability.cov dataset
+
 ```{r}
 n_elements_ability.cov <- get_n_elements.default(ability.cov)
 ```
 
-
 As we can se the `default` method catches all classes that don't have their own method.
+
+Until now we have defined a couple of methods for `get_n_elements` generic function. Now whether you check what are the methods available for `get_n_elements`, we use:
+
+```{r}
+methods("get_n_elements")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
